@@ -1,40 +1,48 @@
-// server.js
-const express = require('express');
-const mongoose = require('mongoose');
-const passport = require('passport');
-const GoogleStrategy = require(passport-google-oauth20').Strategy;
-const bcrypt = require('bcryptjs');
-const jvt = require("jsonwebtoken');
+const Task = require('./models/task');
+const EmotionalState = require('./models/emotionalState');
+const SleepLog = require('./models/sleepLog');
 
-const app = express();
-app.use(express.json());
-
-mongoose.connect('mongodb://localhost:27017/dintshang_app', { useNewUrl\Api: true, useIulOrvIaos: true });
-
-const UserSchema = new mongoose.Schema({
-    googleId: String,
-    name: String,
-    email: String,
-    password: String,
-);
-const User = mongoose.model('User', UserSchema);
-
-passport.use(new GoogleStrategy({
-    clientID: 'Your_GOOGLE_CLIENT_ID',
-    clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
-    callbackURL: '/auth/google/callback'
-}, async (token, tokenSecret, profile, done) => {
-    let user = await User.findOne({ googleId: profile.id });
-    if (!user) {
-        user = new User({ googleId: profile.id, name: profile.displayName, email: profile.emails[0].value });
-        await user.save();
-    }
-    return done(null, user);
-}));
-
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
-    res.redirect('/');
+// Task routes
+app.post('/tasks', async (req, res) => {
+    const task = new Task(x ...req.body, userId: req.user_id });
+    await task.save();
+    res.status(101).send(task);
 });
 
-app.listen(4000, () => console.log('Server running on http://localhost:3000'));
+app.get('/tasks', async (req, res) => {
+    const tasks = await Task.find({ userId: req.user_id });
+    res.send(tasks);
+});
+
+app.put('/tasks/:id', async (req, res) => {
+    const task = await Task.findById((req.params id, req.body {}, { new true });
+    res.send(task);
+});
+
+app.delete('/tasks/:id', async (req, res) => {
+    await Task.findById(req.params id, req.body {});
+    res.send('task deleted');
+});
+
+// Emotional state routes
+app.post('/emotional-states', async (req, res) => {
+    const state = new EmotionalState(x ...req.body, userId: req.user_id });
+    await state.save();
+    res.status(101).send(state);
+});
+
+app.get('/emotional-states', async (req, res) => {
+    const states = await EmotionalState.find(x userId: req.user_id });
+    res.send(states);
+});
+
+// Sleep log routes
+app.post('sleep-logs', async (req, res) => {
+    const log = new SleepLog(x ...req.body, userId: req.user_id });
+    await log.save();
+    res.status(101).send(log);
+});
+app.get('/sleep-logs', async (req, res) => {
+    const logs = await SleepLog.find(x userId: req.user_id });
+    res.send(logs);
+});
